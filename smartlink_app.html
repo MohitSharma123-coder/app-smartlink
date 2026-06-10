@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smartlink Holdings — Assembly Line Manager</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;font-size:13px;background:#0f1117;color:#e2e8f0;min-height:100vh}
+:root{
+  --bg0:#0f1117;--bg1:#161b27;--bg2:#1e2536;--bg3:#252e42;
+  --border:#2d3650;--border2:#3d4f72;
+  --accent:#3b82f6;--accent2:#1d4ed8;
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--purple:#a855f7;--teal:#14b8a6;
+  --text1:#e2e8f0;--text2:#94a3b8;--text3:#64748b;
+}
+.app{display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#0a0d14;border-bottom:1px solid var(--border);padding:10px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:50}
+.logo{font-size:15px;font-weight:700;color:var(--accent);letter-spacing:.5px;white-space:nowrap}
+.logo span{color:var(--text2);font-weight:400;font-size:12px;margin-left:6px}
+.main{padding:16px;display:flex;flex-direction:column;gap:12px;max-width:1400px;margin:0 auto;width:100%}
+.card{background:var(--bg1);border:1px solid var(--border);border-radius:8px;padding:14px 16px}
+.card-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.field{display:flex;flex-direction:column;gap:4px;flex:1;min-width:130px}
+.field label{font-size:11px;color:var(--text2);font-weight:500}
+select,input[type=text],input[type=number],input[type=date]{
+  background:var(--bg2);border:1px solid var(--border);border-radius:6px;
+  color:var(--text1);padding:7px 10px;font-size:12px;outline:none;width:100%;
+  transition:border-color .15s;cursor:pointer
+}
+select:focus,input:focus{border-color:var(--accent)}
+.btn{padding:7px 14px;border-radius:6px;border:1px solid var(--border2);background:var(--bg2);color:var(--text1);font-size:12px;cursor:pointer;transition:all .15s;white-space:nowrap;font-family:inherit}
+.btn:hover{background:var(--bg3);border-color:var(--accent)}
+.btn-accent{background:var(--accent);border-color:var(--accent2);color:#fff}
+.btn-accent:hover{background:var(--accent2)}
+.btn-green{background:rgba(34,197,94,.15);border-color:rgba(34,197,94,.4);color:var(--green)}
+.btn-green:hover{background:rgba(34,197,94,.25)}
+.btn-red{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.35);color:var(--red)}
+.btn-red:hover{background:rgba(239,68,68,.22)}
+.btn-amber{background:rgba(245,158,11,.12);border-color:rgba(245,158,11,.35);color:var(--amber)}
+.btn-amber:hover{background:rgba(245,158,11,.22)}
+.btn-purple{background:rgba(168,85,247,.12);border-color:rgba(168,85,247,.35);color:var(--purple)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:600}
+.badge-blue{background:rgba(59,130,246,.18);color:#60a5fa}
+.badge-green{background:rgba(34,197,94,.18);color:#4ade80}
+.badge-red{background:rgba(239,68,68,.18);color:#f87171}
+.badge-amber{background:rgba(245,158,11,.18);color:#fbbf24}
+.badge-purple{background:rgba(168,85,247,.18);color:#c084fc}
+.badge-teal{background:rgba(20,184,166,.18);color:#2dd4bf}
+.divider{border-top:1px solid var(--border);margin:12px 0}
+.section-bar{background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:8px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:border-color .15s;user-select:none}
+.section-bar:hover{border-color:var(--border2)}
+.section-bar .stitle{font-size:12px;font-weight:600;color:var(--text1)}
+.section-content{margin-top:12px}
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.stat-box{background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:12px;text-align:center}
+.stat-box .num{font-size:24px;font-weight:700}
+.stat-box .lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-top:4px}
+.process-tabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:4px}
+.proc-tab{padding:6px 14px;border-radius:5px;background:var(--bg2);border:1px solid var(--border);color:var(--text3);font-size:11px;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
+.proc-tab.active{background:rgba(59,130,246,.2);border-color:var(--accent);color:var(--accent);font-weight:600}
+.shift-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.line-header{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
+.pill{display:inline-flex;align-items:center;padding:3px 10px;border-radius:12px;font-size:10px;font-weight:600}
+.pill-blue{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
+.pill-purple{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.25)}
+.pill-green{background:rgba(34,197,94,.15);color:#4ade80;border:1px solid rgba(34,197,94,.25)}
+.pill-red{background:rgba(239,68,68,.15);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+.pill-amber{background:rgba(245,158,11,.15);color:#fbbf24;border:1px solid rgba(245,158,11,.25)}
+.pill-teal{background:rgba(20,184,166,.15);color:#2dd4bf;border:1px solid rgba(20,184,166,.25)}
+.op-card{background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:10px}
+.op-role-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.op-role-row:last-child{border-bottom:none}
+.op-role-row .role-name{font-size:11px;color:var(--text2)}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:1000;align-items:center;justify-content:center;padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg1);border:1px solid var(--border2);border-radius:10px;padding:20px;width:600px;max-width:100%;max-height:90vh;overflow-y:auto;position:relative}
+.modal-title{font-size:15px;font-weight:700;color:var(--text1);margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.close-btn{background:none;border:none;color:var(--text3);font-size:20px;cursor:pointer;padding:0 4px;border-radius:4px;line-height:1;flex-shrink:0;font-family:inherit}
+.close-btn:hover{background:var(--bg3);color:var(--text1)}
+.id-table{width:100%;border-collapse:collapse;font-size:11px}
+.id-table th{padding:7px 8px;text-align:left;color:var(--text3);border-bottom:1px solid var(--border);font-weight:500;white-space:nowrap}
+.id-table td{padding:7px 8px;border-bottom:1px solid var(--border);color:var(--text2);word-break:break-all}
+.id-table tbody tr:hover td{background:var(--bg2)}
+.scan-row{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px}
+.scan-row .field{flex:1}
+.scan-num{width:28px;height:28px;background:rgba(59,130,246,.2);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:var(--accent);flex-shrink:0;margin-bottom:4px}
+.emp-row{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--border)}
+.emp-row:last-child{border-bottom:none}
+.emp-name{flex:1;font-size:12px;color:var(--text2)}
+.emp-tag{font-size:10px;padding:2px 7px;border-radius:3px;background:var(--bg3);color:var(--text3);white-space:nowrap}
+.scrollable{max-height:260px;overflow-y:auto}
+.log-item{padding:8px 12px;border-radius:5px;background:var(--bg0);border:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.log-item .lid{font-size:11px;color:var(--text2);font-family:monospace}
+.log-item .lop{font-size:10px;color:var(--text3);margin-top:2px}
+.checkbox-custom{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.summary-dropdown{position:absolute;right:0;top:calc(100% + 6px);background:var(--bg1);border:1px solid var(--border2);border-radius:8px;padding:14px;width:230px;z-index:200;box-shadow:0 8px 32px rgba(0,0,0,.6)}
+.summary-row-item{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:12px}
+.summary-row-item:last-child{border-bottom:none}
+.summary-row-item .sk{color:var(--text2)}
+.summary-row-item .sv{font-weight:600;color:var(--text1)}
+.eod-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+.eod-card{background:var(--bg0);border:1px solid var(--border);border-radius:6px;padding:10px}
+.eod-card .en{font-size:12px;font-weight:600;color:var(--text1);margin-bottom:3px}
+.eod-card .es{font-size:10px;color:var(--text3);margin-bottom:6px}
+.eod-card .ev{font-size:11px;color:var(--text2);margin-top:2px}
+.process-check-row{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--border)}
+.process-check-row:last-child{border-bottom:none}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;font-size:12px;color:var(--text1);z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.show{opacity:1}
+.inline-form{display:flex;gap:8px;margin-top:10px;align-items:flex-end}
+.inline-form .field{flex:1}
+.sep{width:1px;background:var(--border);height:28px;flex-shrink:0}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <div class="topbar">
+    <div class="logo">SMARTLINK HOLDINGS <span>Assembly Line Manager</span></div>
+    <div style="margin-left:auto;display:flex;gap:8px;align-items:center">
+      <span class="badge badge-blue" id="db-status">● Local Mode</span>
+      <button class="btn btn-sm btn-accent" onclick="openModal('eod')">📊 EOD Report</button>
+    </div>
+  </div>
+  <div class="main">
+
+    <!-- JOB HEADER -->
+    <div class="card">
+      <div class="row" style="align-items:flex-end">
+        <div class="field" style="max-width:200px">
+          <label>Product Name</label>
+          <select id="sel-product" onchange="App.selectProduct(+this.value)"></select>
+        </div>
+        <div class="field" style="max-width:160px">
+          <label>Model Number</label>
+          <select id="sel-model" onchange="App.selectProduct(+this.value)"></select>
+        </div>
+        <button class="btn btn-sm" onclick="openModal('editProduct')">+ Edit Products</button>
+        <div class="sep"></div>
+        <div class="field" style="max-width:160px">
+          <label>Job Number</label>
+          <select id="sel-job" onchange="App.selectJob(+this.value)"></select>
+        </div>
+        <div class="field" style="max-width:100px">
+          <label>Total Items</label>
+          <input type="number" id="disp-total" readonly style="background:var(--bg0);color:var(--text3)">
+        </div>
+        <button class="btn btn-sm" onclick="openModal('editJob')">+ Edit Jobs</button>
+        <div style="margin-left:auto;position:relative">
+          <button class="btn btn-accent btn-sm" onclick="App.toggleSummary()">📋 Summary ▾</button>
+          <div class="summary-dropdown" id="summary-dd" style="display:none">
+            <div class="summary-row-item"><span class="sk">Lot Size</span><span class="sv" id="sum-lot">—</span></div>
+            <div class="summary-row-item"><span class="sk">Daily Quantity</span><span class="sv" id="sum-daily">—</span></div>
+            <div class="summary-row-item"><span class="sk">Rejections</span><span class="sv" id="sum-rej" style="color:var(--red)">—</span></div>
+            <div class="summary-row-item"><span class="sk">Reworks Done</span><span class="sv" id="sum-rew" style="color:var(--green)">—</span></div>
+            <div class="summary-row-item"><span class="sk">Pending Reworks</span><span class="sv" id="sum-pend" style="color:var(--amber)">—</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SHIFT & LINE CONFIG -->
+    <div class="card">
+      <div class="section-bar" onclick="App.toggle('collapseShift')">
+        <span class="stitle">⚙ Shift &amp; Line Configuration</span>
+        <span id="sh-caret" style="color:var(--text3);font-size:11px">▼</span>
+      </div>
+      <div class="section-content" id="shift-content">
+        <div class="shift-grid">
+          <div>
+            <div class="line-header"><span class="pill pill-blue">LINE 1</span></div>
+            <div id="line1-checks"></div>
+          </div>
+          <div>
+            <div class="line-header"><span class="pill pill-purple">LINE 2</span></div>
+            <div id="line2-checks"></div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <div class="row">
+          <div class="field" style="max-width:150px">
+            <label>Current Shift</label>
+            <select id="sel-shift" onchange="App.setState('selectedShift',this.value)">
+              <option>Shift 1</option><option>Shift 2</option><option>Shift 3</option>
+            </select>
+          </div>
+          <div class="field" style="max-width:160px">
+            <label>Date</label>
+            <input type="date" id="sel-date" onchange="App.setState('selectedDate',this.value)">
+          </div>
+          <div class="field" style="max-width:120px">
+            <label>Lot Size</label>
+            <input type="number" id="inp-lot" onchange="App.setState('lotSize',+this.value)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERATORS -->
+    <div class="card">
+      <div class="section-bar" onclick="App.toggle('collapseOp')">
+        <span class="stitle" id="op-bar-title">👷 Operator Assignments</span>
+        <span id="op-caret" style="color:var(--text3);font-size:11px">▼</span>
+      </div>
+      <div class="section-content" id="op-content">
+        <div class="row" style="margin-bottom:12px">
+          <button class="btn btn-sm" onclick="openModal('addOperator')">+ Add Operator</button>
+          <button class="btn btn-sm" onclick="openModal('manageOperators')">Manage Operators</button>
+          <div class="sep"></div>
+          <div class="field" style="max-width:160px">
+            <label>View assignments for</label>
+            <select id="sel-proc-op" onchange="App.setState('selectedProcess',this.value);App.renderOperatorSection()"></select>
+          </div>
+          <span id="op-scheme-badge" style="align-self:flex-end"></span>
+        </div>
+        <div class="shift-grid" id="op-assignments"></div>
+      </div>
+    </div>
+
+    <!-- ID TRACKING -->
+    <div class="card">
+      <div class="section-bar" onclick="App.toggle('collapseIds')">
+        <span class="stitle">🔖 Product ID Tracking</span>
+        <span id="id-caret" style="color:var(--text3);font-size:11px">▼</span>
+      </div>
+      <div class="section-content" id="id-content">
+        <div class="process-tabs" id="proc-tabs"></div>
+        <div class="divider"></div>
+        <div class="stats-row">
+          <div class="stat-box"><div class="num" id="stat-acc" style="color:var(--green)">0</div><div class="lbl">Accepted</div></div>
+          <div class="stat-box"><div class="num" id="stat-rej" style="color:var(--red)">0</div><div class="lbl">Rejected</div></div>
+          <div class="stat-box"><div class="num" id="stat-pend" style="color:var(--amber)">0</div><div class="lbl">Pending Rework</div></div>
+          <div class="stat-box"><div class="num" id="stat-done" style="color:var(--purple)">0</div><div class="lbl">Reworks Done</div></div>
+        </div>
+        <div class="divider"></div>
+        <div class="row" style="justify-content:center;gap:12px">
+          <button class="btn btn-green" id="btn-acc" onclick="openModal('accepted')">✅ Accepted</button>
+          <button class="btn btn-red" id="btn-rej" onclick="openModal('rejected')">❌ Rejections</button>
+          <button class="btn btn-amber" id="btn-rew" onclick="openModal('reworks')">🔧 Reworks</button>
+          <button class="btn btn-accent" onclick="openModal('scan')">📷 Scan Product</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="card" style="background:var(--bg0)">
+      <div class="row" style="justify-content:space-between;align-items:center">
+        <span style="font-size:11px;color:var(--text3)">Smartlink Holdings — Assembly Line Manager v1.0 · Standalone Mode (DB-ready)</span>
+        <span style="font-size:11px;color:var(--text3)" id="footer-time"></span>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ==================== MODALS ==================== -->
+
+<!-- Product Edit Modal -->
+<div class="modal-overlay" id="modal-editProduct">
+  <div class="modal">
+    <div class="modal-title">Add / Edit Products <button class="close-btn" onclick="closeModal('editProduct')">✕</button></div>
+    <div class="inline-form">
+      <div class="field"><label>Product Name</label><input type="text" id="ep-name" placeholder="e.g. Router X1"></div>
+      <div class="field"><label>Model Number</label><input type="text" id="ep-model" placeholder="e.g. RX1-2024"></div>
+      <button class="btn btn-accent btn-sm" style="align-self:flex-end" onclick="App.addProduct()">+ Add</button>
+    </div>
+    <div class="divider"></div>
+    <div id="product-list"></div>
+  </div>
+</div>
+
+<!-- Job Edit Modal -->
+<div class="modal-overlay" id="modal-editJob">
+  <div class="modal">
+    <div class="modal-title">Add / Edit Jobs <button class="close-btn" onclick="closeModal('editJob')">✕</button></div>
+    <div class="inline-form">
+      <div class="field"><label>Job Number</label><input type="text" id="ej-id" placeholder="e.g. JOB-003"></div>
+      <div class="field"><label>Total Items</label><input type="number" id="ej-total" placeholder="e.g. 400"></div>
+      <button class="btn btn-accent btn-sm" style="align-self:flex-end" onclick="App.addJob()">+ Add</button>
+    </div>
+    <div class="divider"></div>
+    <div id="job-list"></div>
+  </div>
+</div>
+
+<!-- Add Operator Modal -->
+<div class="modal-overlay" id="modal-addOperator">
+  <div class="modal">
+    <div class="modal-title">Add Operator <button class="close-btn" onclick="closeModal('addOperator')">✕</button></div>
+    <div class="row" style="margin-bottom:10px">
+      <div class="field"><label>Full Name</label><input type="text" id="ao-name" placeholder="Operator full name"></div>
+    </div>
+    <div class="row" style="margin-bottom:14px">
+      <div class="field"><label>Assigned Line</label>
+        <select id="ao-line"><option>Line 1</option><option>Line 2</option></select>
+      </div>
+      <div class="field"><label>Shift</label>
+        <select id="ao-shift"><option>Shift 1</option><option>Shift 2</option><option>Shift 3</option></select>
+      </div>
+    </div>
+    <button class="btn btn-accent" onclick="App.addOperator()">+ Add Operator</button>
+  </div>
+</div>
+
+<!-- Manage Operators Modal -->
+<div class="modal-overlay" id="modal-manageOperators">
+  <div class="modal">
+    <div class="modal-title">Manage Operators <button class="close-btn" onclick="closeModal('manageOperators')">✕</button></div>
+    <div class="scrollable" id="manage-op-list"></div>
+  </div>
+</div>
+
+<!-- Scan Modal -->
+<div class="modal-overlay" id="modal-scan">
+  <div class="modal">
+    <div class="modal-title" id="scan-title">📷 Scan Product <button class="close-btn" onclick="closeModal('scan')">✕</button></div>
+    <div style="font-size:11px;color:var(--text3);margin-bottom:14px" id="scan-info"></div>
+    <div id="scan-fields"></div>
+    <div class="divider"></div>
+    <div class="row" style="gap:8px">
+      <button class="btn btn-green" onclick="App.acceptScan()">✅ Accept</button>
+      <button class="btn btn-red" onclick="App.rejectScan()">❌ Reject</button>
+      <button class="btn btn-sm" onclick="App.clearScan()">Clear</button>
+    </div>
+  </div>
+</div>
+
+<!-- Accepted Modal -->
+<div class="modal-overlay" id="modal-accepted">
+  <div class="modal" style="width:700px">
+    <div class="modal-title" id="acc-title">✅ Accepted Items <button class="close-btn" onclick="closeModal('accepted')">✕</button></div>
+    <div id="acc-content"></div>
+  </div>
+</div>
+
+<!-- Rejected Modal -->
+<div class="modal-overlay" id="modal-rejected">
+  <div class="modal" style="width:700px">
+    <div class="modal-title">❌ Rejected Items <button class="close-btn" onclick="closeModal('rejected')">✕</button></div>
+    <div id="rej-content"></div>
+  </div>
+</div>
+
+<!-- Reworks Modal -->
+<div class="modal-overlay" id="modal-reworks">
+  <div class="modal" style="width:700px">
+    <div class="modal-title">🔧 Rework Items <button class="close-btn" onclick="closeModal('reworks')">✕</button></div>
+    <div id="rew-content"></div>
+  </div>
+</div>
+
+<!-- EOD Modal -->
+<div class="modal-overlay" id="modal-eod">
+  <div class="modal" style="width:700px">
+    <div class="modal-title" id="eod-title">📊 End-of-Day Report <button class="close-btn" onclick="closeModal('eod')">✕</button></div>
+    <div id="eod-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ============================================================
+// DATA CONSTANTS
+// ============================================================
+const PROCESSES = ['SMT','PTH','Touch Up','Casing','Testing','Packing'];
+const PROCESS_ROLES = {
+  'SMT':['Screen Printer','M/C Operator','AOI Operator','Bar Coding','R/W Operator'],
+  'PTH':['Component Cutting','Bosa Cutting & Forming','PCB Shearing','Assembling','QC','Machine Operator'],
+  'Touch Up':['Soldering','QC','Barcode Scanning','Heatsink Placement'],
+  'Casing':['Operator'],
+  'Testing':['Operator'],
+  'Packing':['Operator']
+};
+const ID_SCHEME = {
+  'SMT':'temp','PTH':'temp','Touch Up':'temp','Casing':'temp',
+  'Testing':'temp+mac','Packing':'mac+serial'
+};
+const SCHEME_BADGE = {
+  'temp':'badge-blue','temp+mac':'badge-teal','mac+serial':'badge-purple'
+};
+
+// ============================================================
+// STATE
+// ============================================================
+const DB = {
+  products:[{name:'Router X1',model:'RX1-2024'},{name:'Switch Pro',model:'SP-400'}],
+  jobNumbers:[{id:'JOB-001',total:500},{id:'JOB-002',total:300}],
+  operators:[
+    {id:1,name:'Rahul Desai',line:'Line 1',shift:'Shift 1'},
+    {id:2,name:'Priya Nair',line:'Line 1',shift:'Shift 1'},
+    {id:3,name:'Amit Shah',line:'Line 2',shift:'Shift 1'},
+    {id:4,name:'Sunita Joshi',line:'Line 2',shift:'Shift 2'},
+    {id:5,name:'Kiran Mehta',line:'Line 1',shift:'Shift 2'},
+  ],
+  scannedItems:[],
+  rejectedItems:[],
+  reworkItems:[],
+  assignments:{}
+};
+
+const S = {
+  selectedProduct:0,
+  selectedJob:0,
+  selectedShift:'Shift 1',
+  selectedDate:new Date().toISOString().slice(0,10),
+  selectedProcess:'SMT',
+  lotSize:500,
+  collapseShift:false,
+  collapseOp:false,
+  collapseIds:false,
+  showSummary:false,
+  nextOpId:10
+};
+
+// ============================================================
+// HELPERS
+// ============================================================
+function genTempId(){return 'TMP-'+Math.random().toString(36).substr(2,6).toUpperCase();}
+function genMac(){return Array.from({length:6},()=>Math.floor(Math.random()*256).toString(16).padStart(2,'0').toUpperCase()).join(':');}
+function genSerial(){return 'SN-'+Date.now().toString().slice(-8);}
+function getOp(id){return DB.operators.find(o=>o.id==id);}
+function getOpName(id){const o=getOp(id);return o?o.name:'Unassigned';}
+function showToast(msg,color){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.borderColor=color||'var(--accent)';
+  t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);
+}
+function saveLocal(){
+  try{localStorage.setItem('smartlink_db',JSON.stringify(DB));
+  localStorage.setItem('smartlink_s',JSON.stringify(S));}catch(e){}
+}
+function loadLocal(){
+  try{
+    const d=localStorage.getItem('smartlink_db');
+    const s=localStorage.getItem('smartlink_s');
+    if(d)Object.assign(DB,JSON.parse(d));
+    if(s)Object.assign(S,JSON.parse(s));
+  }catch(e){}
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openModal(id){
+  document.getElementById('modal-'+id).classList.add('open');
+  App.populateModal(id);
+}
+function closeModal(id){
+  document.getElementById('modal-'+id).classList.remove('open');
+  App.refreshStats();
+}
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',e=>{if(e.target===el){const id=el.id.replace('modal-','');closeModal(id);}});
+});
+
+// ============================================================
+// APP
+// ============================================================
+const App = {
+
+  init(){
+    loadLocal();
+    this.renderHeader();
+    this.renderShiftSection();
+    this.renderProcessTabs();
+    this.renderOperatorSection();
+    this.refreshStats();
+    this.startClock();
+    // set date input
+    const di=document.getElementById('sel-date');
+    if(di)di.value=S.selectedDate;
+    const li=document.getElementById('inp-lot');
+    if(li)li.value=S.lotSize;
+    const si=document.getElementById('sel-shift');
+    if(si)si.value=S.selectedShift;
+    // collapse states
+    this.applyCollapse('collapseShift','shift-content','sh-caret');
+    this.applyCollapse('collapseOp','op-content','op-caret');
+    this.applyCollapse('collapseIds','id-content','id-caret');
+  },
+
+  setState(key,val){
+    S[key]=val;saveLocal();
+    if(key==='selectedProcess'){this.renderProcessTabs();this.renderOperatorSection();this.refreshStats();}
+    if(key==='selectedShift'){}
+    if(key==='lotSize'){}
+  },
+
+  toggle(key){
+    S[key]=!S[key];saveLocal();
+    if(key==='collapseShift')this.applyCollapse('collapseShift','shift-content','sh-caret');
+    if(key==='collapseOp')this.applyCollapse('collapseOp','op-content','op-caret');
+    if(key==='collapseIds')this.applyCollapse('collapseIds','id-content','id-caret');
+  },
+
+  applyCollapse(stateKey,contentId,caretId){
+    const el=document.getElementById(contentId);
+    const ca=document.getElementById(caretId);
+    if(!el)return;
+    if(S[stateKey]){el.style.display='none';if(ca)ca.textContent='▶';}
+    else{el.style.display='';if(ca)ca.textContent='▼';}
+  },
+
+  toggleSummary(){
+    S.showSummary=!S.showSummary;
+    const dd=document.getElementById('summary-dd');
+    if(dd)dd.style.display=S.showSummary?'block':'none';
+    if(S.showSummary)this.updateSummary();
+  },
+
+  updateSummary(){
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    set('sum-lot',S.lotSize);
+    set('sum-daily',DB.scannedItems.length);
+    set('sum-rej',DB.rejectedItems.length);
+    set('sum-rew',DB.reworkItems.filter(r=>r.done).length);
+    set('sum-pend',DB.reworkItems.filter(r=>!r.done).length);
+  },
+
+  selectProduct(i){
+    S.selectedProduct=i;
+    const sm=document.getElementById('sel-model');
+    const sp=document.getElementById('sel-product');
+    if(sm&&DB.products[i])sm.selectedIndex=i;
+    if(sp&&DB.products[i])sp.selectedIndex=i;
+    saveLocal();
+  },
+
+  selectJob(i){
+    S.selectedJob=i;
+    const dt=document.getElementById('disp-total');
+    if(dt&&DB.jobNumbers[i])dt.value=DB.jobNumbers[i].total;
+    saveLocal();
+  },
+
+  // ---- RENDER FUNCTIONS ----
+
+  renderHeader(){
+    // Products
+    const sp=document.getElementById('sel-product');
+    const sm=document.getElementById('sel-model');
+    if(sp){sp.innerHTML=DB.products.map((p,i)=>`<option value="${i}">${p.name}</option>`).join('');sp.value=S.selectedProduct;}
+    if(sm){sm.innerHTML=DB.products.map((p,i)=>`<option value="${i}">${p.model}</option>`).join('');sm.value=S.selectedProduct;}
+    // Jobs
+    const sj=document.getElementById('sel-job');
+    const dt=document.getElementById('disp-total');
+    if(sj){sj.innerHTML=DB.jobNumbers.map((j,i)=>`<option value="${i}">${j.id}</option>`).join('');sj.value=S.selectedJob;}
+    if(dt&&DB.jobNumbers[S.selectedJob])dt.value=DB.jobNumbers[S.selectedJob].total;
+  },
+
+  renderShiftSection(){
+    ['line1-checks','line2-checks'].forEach((id,li)=>{
+      const lineKey=li===0?'line1':'line2';
+      const el=document.getElementById(id);
+      if(!el)return;
+      if(!S[lineKey])S[lineKey]={};
+      PROCESSES.forEach(p=>{
+        if(S[lineKey][p]===undefined)S[lineKey][p]=true;
+      });
+      el.innerHTML=PROCESSES.map(p=>`
+        <div class="process-check-row">
+          <span style="font-size:12px;color:var(--text2)">${p}</span>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer">
+            <input type="checkbox" ${S[lineKey][p]?'checked':''} onchange="App.toggleLineProcess('${lineKey}','${p}',this.checked)">
+            <span style="font-size:10px;color:var(--text3)">${S[lineKey][p]?'Active':'Off'}</span>
+          </label>
+        </div>`).join('');
+    });
+  },
+
+  toggleLineProcess(lineKey,proc,val){
+    if(!S[lineKey])S[lineKey]={};
+    S[lineKey][proc]=val;saveLocal();
+    this.renderShiftSection();
+  },
+
+  renderProcessTabs(){
+    const el=document.getElementById('proc-tabs');
+    if(!el)return;
+    el.innerHTML=PROCESSES.map(p=>{
+      const sc=ID_SCHEME[p];
+      return `<div class="proc-tab${p===S.selectedProcess?' active':''}" onclick="App.setState('selectedProcess','${p}')">${p} <span class="badge ${SCHEME_BADGE[sc]}" style="margin-left:4px;font-size:9px">${sc}</span></div>`;
+    }).join('');
+    // process select in op section
+    const sp=document.getElementById('sel-proc-op');
+    if(sp){sp.innerHTML=PROCESSES.map(p=>`<option${p===S.selectedProcess?' selected':''}>${p}</option>`).join('');}
+    // scheme badge
+    const sb=document.getElementById('op-scheme-badge');
+    if(sb)sb.innerHTML=`<span class="badge ${SCHEME_BADGE[ID_SCHEME[S.selectedProcess]]} " style="align-self:flex-end;margin-bottom:4px">${ID_SCHEME[S.selectedProcess]}</span>`;
+  },
+
+  renderOperatorSection(){
+    const el=document.getElementById('op-assignments');
+    if(!el)return;
+    const proc=S.selectedProcess;
+    const roles=PROCESS_ROLES[proc]||['Operator'];
+    const opBarTitle=document.getElementById('op-bar-title');
+    if(opBarTitle)opBarTitle.textContent=`👷 Operator Assignments — ${proc}`;
+    el.innerHTML=['Line 1','Line 2'].map((line,li)=>{
+      const pillClass=li===0?'pill-blue':'pill-purple';
+      const lineOps=DB.operators.filter(o=>o.line===line);
+      const rows=roles.map(role=>{
+        const key=`${line}||${proc}||${role}`;
+        const assigned=DB.assignments[key]||'';
+        return `<div class="op-role-row">
+          <span class="role-name">${role}</span>
+          <select style="width:140px;font-size:11px;padding:3px 6px" onchange="App.assignOp('${line}','${proc}','${role}',this.value)">
+            <option value="">— Assign —</option>
+            ${lineOps.map(o=>`<option value="${o.id}"${assigned==o.id?' selected':''}>${o.name} (${o.shift})</option>`).join('')}
+          </select>
+        </div>`;
+      }).join('');
+      return `<div><div class="line-header"><span class="pill ${pillClass}">${line}</span></div><div class="op-card">${rows}</div></div>`;
+    }).join('');
+  },
+
+  assignOp(line,proc,role,opId){
+    const key=`${line}||${proc}||${role}`;
+    DB.assignments[key]=opId;saveLocal();
+  },
+
+  refreshStats(){
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    const proc=S.selectedProcess;
+    const procItems=DB.scannedItems.filter(i=>i.process===proc);
+    const procRej=DB.rejectedItems.filter(i=>i.process===proc);
+    const procRew=DB.reworkItems.filter(i=>i.process===proc);
+    set('stat-acc',procItems.length);
+    set('stat-rej',procRej.length);
+    set('stat-pend',procRew.filter(r=>!r.done).length);
+    set('stat-done',procRew.filter(r=>r.done).length);
+    const ba=document.getElementById('btn-acc');
+    const br=document.getElementById('btn-rej');
+    const bw=document.getElementById('btn-rew');
+    if(ba)ba.textContent=`✅ Accepted (${procItems.length})`;
+    if(br)br.textContent=`❌ Rejections (${procRej.length})`;
+    if(bw)bw.textContent=`🔧 Reworks (${procRew.length})`;
+    if(S.showSummary)this.updateSummary();
+  },
+
+  startClock(){
+    const el=document.getElementById('footer-time');
+    const tick=()=>{if(el)el.textContent=new Date().toLocaleString();};
+    tick();setInterval(tick,1000);
+  },
+
+  // ---- MODAL POPULATE ----
+  populateModal(id){
+    if(id==='editProduct')this.populateProductModal();
+    else if(id==='editJob')this.populateJobModal();
+    else if(id==='manageOperators')this.populateManageOp();
+    else if(id==='scan')this.populateScan();
+    else if(id==='accepted')this.populateAccepted();
+    else if(id==='rejected')this.populateRejected();
+    else if(id==='reworks')this.populateReworks();
+    else if(id==='eod')this.populateEod();
+  },
+
+  populateProductModal(){
+    const el=document.getElementById('product-list');
+    if(!el)return;
+    el.innerHTML=DB.products.length===0?'<p style="color:var(--text3);font-size:12px">No products yet.</p>':
+      DB.products.map((p,i)=>`
+        <div class="log-item">
+          <div><div class="lid">${p.name}</div><div class="lop">${p.model}</div></div>
+          <button class="btn btn-red btn-sm" onclick="App.removeProduct(${i})">Delete</button>
+        </div>`).join('');
+  },
+
+  addProduct(){
+    const n=document.getElementById('ep-name').value.trim();
+    const m=document.getElementById('ep-model').value.trim();
+    if(!n||!m){showToast('Enter both name and model','var(--red)');return;}
+    DB.products.push({name:n,model:m});
+    document.getElementById('ep-name').value='';
+    document.getElementById('ep-model').value='';
+    this.renderHeader();this.populateProductModal();saveLocal();
+    showToast('Product added','var(--green)');
+  },
+
+  removeProduct(i){
+    if(!confirm('Delete this product?'))return;
+    DB.products.splice(i,1);
+    if(S.selectedProduct>=DB.products.length)S.selectedProduct=0;
+    this.renderHeader();this.populateProductModal();saveLocal();
+  },
+
+  populateJobModal(){
+    const el=document.getElementById('job-list');
+    if(!el)return;
+    el.innerHTML=DB.jobNumbers.length===0?'<p style="color:var(--text3);font-size:12px">No jobs yet.</p>':
+      DB.jobNumbers.map((j,i)=>`
+        <div class="log-item">
+          <div><div class="lid">${j.id}</div><div class="lop">${j.total} items</div></div>
+          <button class="btn btn-red btn-sm" onclick="App.removeJob(${i})">Delete</button>
+        </div>`).join('');
+  },
+
+  addJob(){
+    const id=document.getElementById('ej-id').value.trim();
+    const total=+document.getElementById('ej-total').value;
+    if(!id||!total){showToast('Enter job ID and total','var(--red)');return;}
+    DB.jobNumbers.push({id,total});
+    document.getElementById('ej-id').value='';
+    document.getElementById('ej-total').value='';
+    this.renderHeader();this.populateJobModal();saveLocal();
+    showToast('Job added','var(--green)');
+  },
+
+  removeJob(i){
+    if(!confirm('Delete this job?'))return;
+    DB.jobNumbers.splice(i,1);
+    if(S.selectedJob>=DB.jobNumbers.length)S.selectedJob=0;
+    this.renderHeader();this.populateJobModal();saveLocal();
+  },
+
+  addOperator(){
+    const name=document.getElementById('ao-name').value.trim();
+    const line=document.getElementById('ao-line').value;
+    const shift=document.getElementById('ao-shift').value;
+    if(!name){showToast('Enter operator name','var(--red)');return;}
+    DB.operators.push({id:++S.nextOpId,name,line,shift});
+    document.getElementById('ao-name').value='';
+    this.renderOperatorSection();saveLocal();
+    closeModal('addOperator');showToast('Operator added','var(--green)');
+  },
+
+  populateManageOp(){
+    const el=document.getElementById('manage-op-list');
+    if(!el)return;
+    el.innerHTML=DB.operators.length===0?'<p style="color:var(--text3);font-size:12px">No operators yet.</p>':
+      DB.operators.map(o=>`
+        <div class="emp-row">
+          <div class="emp-name">${o.name}</div>
+          <span class="emp-tag">${o.line}</span>
+          <select style="width:90px;font-size:10px;padding:2px 5px" onchange="App.changeOpLine(${o.id},this.value)">
+            <option${o.line==='Line 1'?' selected':''}>Line 1</option>
+            <option${o.line==='Line 2'?' selected':''}>Line 2</option>
+          </select>
+          <select style="width:80px;font-size:10px;padding:2px 5px" onchange="App.changeOpShift(${o.id},this.value)">
+            ${['Shift 1','Shift 2','Shift 3'].map(s=>`<option${o.shift===s?' selected':''}>${s}</option>`).join('')}
+          </select>
+          <button class="btn btn-red btn-sm" onclick="App.removeOperator(${o.id})">✕</button>
+        </div>`).join('');
+  },
+
+  changeOpLine(id,line){const o=getOp(id);if(o){o.line=line;saveLocal();this.populateManageOp();this.renderOperatorSection();}},
+  changeOpShift(id,shift){const o=getOp(id);if(o){o.shift=shift;saveLocal();this.populateManageOp();}},
+  removeOperator(id){
+    if(!confirm('Remove this operator?'))return;
+    DB.operators=DB.operators.filter(o=>o.id!=id);
+    saveLocal();this.populateManageOp();this.renderOperatorSection();
+  },
+
+  // ---- SCAN ----
+  populateScan(){
+    const proc=S.selectedProcess;
+    const scheme=ID_SCHEME[proc];
+    const title=document.getElementById('scan-title');
+    const info=document.getElementById('scan-info');
+    const fields=document.getElementById('scan-fields');
+    if(title)title.childNodes[0].textContent=`📷 Scan — ${proc} `;
+    // find first assigned op
+    const firstRole=(PROCESS_ROLES[proc]||['Operator'])[0];
+    const key=`Line 1||${proc}||${firstRole}`;
+    const opId=DB.assignments[key]||'';
+    const opName=opId?getOpName(opId):'Not assigned';
+    if(info)info.innerHTML=`Operator: <strong style="color:var(--text1)">${opName}</strong> &nbsp;·&nbsp; ID scheme: <span class="badge ${SCHEME_BADGE[scheme]}">${scheme}</span>`;
+    let html='';
+    if(scheme.includes('temp'))html+=`<div class="scan-row"><div class="scan-num">1</div><div class="field"><label>Temporary ID</label><input type="text" id="sc-temp" placeholder="Scan barcode or type Temp ID"></div><button class="btn btn-sm" onclick="document.getElementById('sc-temp').value=genTempId()">Auto</button></div>`;
+    if(scheme.includes('mac'))html+=`<div class="scan-row"><div class="scan-num" style="background:rgba(20,184,166,.2);color:var(--teal)">2</div><div class="field"><label>MAC Address</label><input type="text" id="sc-mac" placeholder="Scan MAC address"></div><button class="btn btn-sm" onclick="document.getElementById('sc-mac').value=genMac()">Auto</button></div>`;
+    if(scheme.includes('serial'))html+=`<div class="scan-row"><div class="scan-num" style="background:rgba(168,85,247,.2);color:var(--purple)">3</div><div class="field"><label>Serial Number</label><input type="text" id="sc-serial" placeholder="Scan serial number"></div><button class="btn btn-sm" onclick="document.getElementById('sc-serial').value=genSerial()">Auto</button></div>`;
+    if(fields)fields.innerHTML=html;
+  },
+
+  _getScanData(){
+    const proc=S.selectedProcess;
+    const scheme=ID_SCHEME[proc];
+    const firstRole=(PROCESS_ROLES[proc]||['Operator'])[0];
+    const key=`Line 1||${proc}||${firstRole}`;
+    const opId=DB.assignments[key]||'';
+    const item={
+      process:proc,
+      job:(DB.jobNumbers[S.selectedJob]||{id:'—'}).id,
+      shift:S.selectedShift,
+      date:S.selectedDate,
+      time:new Date().toLocaleTimeString(),
+      operatorId:opId,
+      operator:opId?getOpName(opId):'Unassigned'
+    };
+    const t=document.getElementById('sc-temp');
+    const m=document.getElementById('sc-mac');
+    const sr=document.getElementById('sc-serial');
+    if(t&&t.value)item.temp=t.value.trim();
+    if(m&&m.value)item.mac=m.value.trim();
+    if(sr&&sr.value)item.serial=sr.value.trim();
+    return item;
+  },
+
+  acceptScan(){
+    const item=this._getScanData();
+    const scheme=ID_SCHEME[item.process];
+    if(scheme.includes('temp')&&!item.temp){showToast('Enter Temp ID','var(--red)');return;}
+    if(scheme.includes('mac')&&!item.mac){showToast('Enter MAC Address','var(--red)');return;}
+    if(scheme.includes('serial')&&!item.serial){showToast('Enter Serial Number','var(--red)');return;}
+    DB.scannedItems.push(item);saveLocal();this.refreshStats();
+    this.clearScan();showToast('✅ Item accepted','var(--green)');
+  },
+
+  rejectScan(){
+    const item=this._getScanData();
+    const reason=prompt('Rejection reason (optional):') || 'Quality fail';
+    item.reason=reason;
+    DB.rejectedItems.push(item);saveLocal();this.refreshStats();
+    this.clearScan();showToast('❌ Item rejected','var(--red)');
+  },
+
+  clearScan(){
+    ['sc-temp','sc-mac','sc-serial'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  },
+
+  // ---- ACCEPTED ----
+  populateAccepted(){
+    const proc=S.selectedProcess;
+    const scheme=ID_SCHEME[proc];
+    const items=DB.scannedItems.filter(i=>i.process===proc);
+    const title=document.getElementById('acc-title');
+    if(title)title.childNodes[0].textContent=`✅ Accepted — ${proc} (${items.length}) `;
+    const el=document.getElementById('acc-content');
+    if(!el)return;
+    if(items.length===0){el.innerHTML='<p style="color:var(--text3);padding:20px;text-align:center">No accepted items for this process yet.</p>';return;}
+    const cols=[
+      ...(scheme.includes('temp')?['Temp ID']:[]),
+      ...(scheme.includes('mac')?['MAC Address']:[]),
+      ...(scheme.includes('serial')?['Serial No.']:[]),
+      'Operator','Job','Shift','Time'
+    ];
+    el.innerHTML=`<div style="overflow-x:auto"><table class="id-table">
+      <thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${items.map(i=>`<tr>
+        ${scheme.includes('temp')?`<td style="font-family:monospace;color:#60a5fa">${i.temp||'—'}</td>`:''}
+        ${scheme.includes('mac')?`<td style="font-family:monospace;color:#2dd4bf">${i.mac||'—'}</td>`:''}
+        ${scheme.includes('serial')?`<td style="font-family:monospace;color:#c084fc">${i.serial||'—'}</td>`:''}
+        <td>${i.operator||'—'}</td><td>${i.job||'—'}</td><td>${i.shift||'—'}</td><td>${i.time||'—'}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  },
+
+  // ---- REJECTED ----
+  populateRejected(){
+    const proc=S.selectedProcess;
+    const items=DB.rejectedItems.filter(i=>i.process===proc);
+    const el=document.getElementById('rej-content');
+    if(!el)return;
+    if(items.length===0){el.innerHTML='<p style="color:var(--text3);padding:20px;text-align:center">No rejections for this process.</p>';return;}
+    el.innerHTML=`<div style="overflow-x:auto"><table class="id-table">
+      <thead><tr><th>ID / MAC</th><th>Reason</th><th>Operator</th><th>Process</th><th>Time</th><th>Action</th></tr></thead>
+      <tbody>${items.map((i,idx)=>`<tr>
+        <td style="font-family:monospace;color:#f87171">${i.temp||i.mac||'—'}</td>
+        <td>${i.reason||'—'}</td>
+        <td>${i.operator||'—'}</td>
+        <td>${i.process}</td>
+        <td>${i.time||'—'}</td>
+        <td><button class="btn btn-amber btn-sm" onclick="App.sendToRework_byProc('${proc}',${idx})">→ Rework</button></td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  },
+
+  sendToRework_byProc(proc,idx){
+    const procRej=DB.rejectedItems.filter(i=>i.process===proc);
+    const item=procRej[idx];
+    const globalIdx=DB.rejectedItems.indexOf(item);
+    if(globalIdx===-1)return;
+    DB.rejectedItems.splice(globalIdx,1);
+    item.done=false;
+    DB.reworkItems.push(item);
+    saveLocal();this.refreshStats();this.populateRejected();
+    showToast('Moved to rework queue','var(--amber)');
+  },
+
+  // ---- REWORKS ----
+  populateReworks(){
+    const proc=S.selectedProcess;
+    const items=DB.reworkItems.filter(i=>i.process===proc);
+    const el=document.getElementById('rew-content');
+    if(!el)return;
+    if(items.length===0){el.innerHTML='<p style="color:var(--text3);padding:20px;text-align:center">No rework items for this process.</p>';return;}
+    el.innerHTML=`<div style="overflow-x:auto"><table class="id-table">
+      <thead><tr><th>Done?</th><th>ID / MAC</th><th>Reason</th><th>Operator</th><th>Time</th><th>Action</th></tr></thead>
+      <tbody>${items.map((i,idx)=>`<tr>
+        <td><input type="checkbox" class="checkbox-custom" ${i.done?'checked':''} onchange="App.markRework_byProc('${proc}',${idx},this.checked)"></td>
+        <td style="font-family:monospace;color:#fbbf24">${i.temp||i.mac||'—'}</td>
+        <td>${i.reason||'—'}</td>
+        <td>${i.operator||'—'}</td>
+        <td>${i.time||'—'}</td>
+        <td>${i.done?`<button class="btn btn-green btn-sm" onclick="App.acceptRework_byProc('${proc}',${idx})">✅ Accept</button>`:''}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>`;
+  },
+
+  markRework_byProc(proc,idx,val){
+    const procRew=DB.reworkItems.filter(i=>i.process===proc);
+    const item=procRew[idx];
+    if(item)item.done=val;
+    saveLocal();this.populateReworks();this.refreshStats();
+  },
+
+  acceptRework_byProc(proc,idx){
+    const procRew=DB.reworkItems.filter(i=>i.process===proc);
+    const item=procRew[idx];
+    const globalIdx=DB.reworkItems.indexOf(item);
+    if(globalIdx===-1)return;
+    DB.reworkItems.splice(globalIdx,1);
+    item.time=new Date().toLocaleTimeString();
+    item.reworkAccepted=true;
+    DB.scannedItems.push(item);
+    saveLocal();this.refreshStats();this.populateReworks();
+    showToast('✅ Rework accepted and moved','var(--green)');
+  },
+
+  // ---- EOD ----
+  populateEod(){
+    const title=document.getElementById('eod-title');
+    if(title)title.childNodes[0].textContent=`📊 End-of-Day Report — ${S.selectedDate} `;
+    const el=document.getElementById('eod-content');
+    if(!el)return;
+    const total=DB.scannedItems.length;
+    const totalRej=DB.rejectedItems.length;
+    const totalRew=DB.reworkItems.length;
+    const totalRewDone=DB.reworkItems.filter(r=>r.done).length;
+    let html=`<div class="stats-row" style="margin-bottom:16px">
+      <div class="stat-box"><div class="num" style="color:var(--green)">${total}</div><div class="lbl">Total Accepted</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--red)">${totalRej}</div><div class="lbl">Total Rejected</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--amber)">${totalRew}</div><div class="lbl">Total Reworks</div></div>
+      <div class="stat-box"><div class="num" style="color:var(--purple)">${totalRewDone}</div><div class="lbl">Reworks Done</div></div>
+    </div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Per Operator</div>`;
+    html+=`<div class="eod-grid" style="margin-bottom:16px">`;
+    DB.operators.forEach(op=>{
+      const acc=DB.scannedItems.filter(i=>i.operatorId==op.id).length;
+      const rej=DB.rejectedItems.filter(i=>i.operatorId==op.id).length;
+      const rew=DB.reworkItems.filter(i=>i.operatorId==op.id).length;
+      html+=`<div class="eod-card"><div class="en">${op.name}</div><div class="es">${op.line} · ${op.shift}</div>
+        <div class="ev">✅ <strong style="color:var(--green)">${acc}</strong></div>
+        <div class="ev">❌ <strong style="color:var(--red)">${rej}</strong></div>
+        <div class="ev">🔧 <strong style="color:var(--amber)">${rew}</strong></div></div>`;
+    });
+    html+=`</div>`;
+    html+=`<div style="font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Per Process</div>`;
+    html+=`<div class="eod-grid">`;
+    PROCESSES.forEach(p=>{
+      const acc=DB.scannedItems.filter(i=>i.process===p).length;
+      const rej=DB.rejectedItems.filter(i=>i.process===p).length;
+      const rew=DB.reworkItems.filter(i=>i.process===p).length;
+      const sc=ID_SCHEME[p];
+      html+=`<div class="eod-card"><div class="en">${p}</div>
+        <div class="ev">✅ ${acc} &nbsp; ❌ ${rej} &nbsp; 🔧 ${rew}</div>
+        <div class="ev" style="margin-top:5px"><span class="badge ${SCHEME_BADGE[sc]}">${sc}</span></div></div>`;
+    });
+    html+=`</div>`;
+    el.innerHTML=html;
+  }
+};
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded',()=>App.init());
+</script>
+</body>
+</html>
